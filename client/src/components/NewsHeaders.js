@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import Divider from '@material-ui/core/Divider';
-import ListItemText from '@material-ui/core/ListItemText';
+import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 
 
@@ -32,13 +32,16 @@ export default function NewsHeaders({ title, articles }) {
           {articles.length > 0 ? articles.map((article, i) => (
             <React.Fragment key={article.url}>
               <Divider />
-
               <ListItem button component="a" href={'#' + article.url}
                 alignItems="flex-start">
-                <ListItemText
-                  primary={article.title}
-                  secondary={article.source.name}
-                />
+                <div>
+                  <Typography variant="subtitle2" component="span" >
+                    {article.title.split('-')[0]}
+                  </Typography>
+                  <Typography variant="body2" component="span" >
+                    {' - ' + article.source.name}
+                  </Typography>
+                </div>
               </ListItem>
             </React.Fragment>
           )) : <NoArticles />

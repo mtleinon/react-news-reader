@@ -10,6 +10,7 @@ import LeftSidebar from '../components/LeftSidebar';
 import RightSidebar from '../components/RightSidebar';
 import Articles from '../components/Articles';
 import { fetchJson } from '../utils/fetchJson';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 const ALL_CATEGORIES = 'All categories';
 const ALL_COUNTRIES = 'All countries';
@@ -21,6 +22,7 @@ const DEFAULT_SOURCE = 'bbc-news';
 const Spinner = () => <div style={{ display: 'flex', justifyContent: 'center', marginTop: '80px' }}><CircularProgress /></div>
 
 export default function MainPage() {
+  const rightSidebarVisible = useMediaQuery('(min-width:800px)');
 
   const [category, setCategory] = useState(ALL_CATEGORIES);
   const [country, setCountry] = useState('us');
@@ -34,6 +36,8 @@ export default function MainPage() {
   const [loadingArticles, setLoadingArticles] = useState(false);
   const [loadingDefaultArticles, setLoadingDefaultArticles] = useState(false);
 
+  console.debug('rightSidebarVisible =', rightSidebarVisible);
+
   const loadSources = useCallback(async () => {
 
     const query = '/v2/sources?';
@@ -44,6 +48,9 @@ export default function MainPage() {
   }, []);
 
   const loadDefaultArticles = useCallback(async () => {
+    if (!rightSidebarVisible) {
+      return;
+    }
     const queryParams = 'sources=' + DEFAULT_SOURCE;
     const query = 'v2/top-headlines?' + queryParams + '&';
 
@@ -54,7 +61,7 @@ export default function MainPage() {
     setDefaultArticles(reply.articles);
     setLoadingDefaultArticles(false);
 
-  }, []);
+  }, [rightSidebarVisible]);
 
   const loadArticles = useCallback(async () => {
     let queryParams = '';
@@ -141,7 +148,11 @@ export default function MainPage() {
       </LeftSidebar>
       <MainContent>
         {loadingArticles ? <Spinner /> : (
-          articles.length > 0 || defaultArticles.length > 0 ? (<Articles articles={[...articles, ...defaultArticles]} />) : ''
+          articles.length > 0 || defaultArticles.length > 0 ?
+            (rightSidebarVisible ?
+              <Articles articles={[...articles, ...defaultArticles]} /> :
+              <Articles articles={[...articles]} />)
+            : ''
         )
         }
       </MainContent>

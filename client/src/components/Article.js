@@ -4,8 +4,10 @@ import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardMedia from '@material-ui/core/CardMedia';
 import CardContent from '@material-ui/core/CardContent';
+import CardActions from '@material-ui/core/CardActions';
 import Typography from '@material-ui/core/Typography';
 import { red } from '@material-ui/core/colors';
+import Button from '@material-ui/core/Button';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -36,10 +38,12 @@ const useStyles = makeStyles(theme => ({
 export default function Article({ id, article }) {
   const classes = useStyles();
 
+  const preventDefault = event => event.preventDefault();
+
   return (
     <Card id={id} className={classes.card} raised>
       <CardHeader
-        title={article.title}
+        title={article.title.split('-')[0]}
         subheader={article.source.name}
       />
       {article.urlToImage &&
@@ -50,20 +54,37 @@ export default function Article({ id, article }) {
         />
       }
       <CardContent>
-        <Typography variant="body2" color="textSecondary" component="p">
-          {article.publishedAt}
+        {article.author && <Typography variant="body2" color="textPrimary" component="span">
+          <b>{article.author}</b> -
+          </Typography>
+        }
+        <Typography variant="body2" color="secondary" component="span">
+          <b>
+            {' ' + new Date(article.publishedAt).toLocaleString()}
+          </b>
         </Typography>
+        <div style={{ margin: '8px 24px 16px' }}>
+          <Typography variant="body1" color="textPrimary" component="p">
+            {article.description}
+          </Typography>
+        </div>
+        {/* <hr /> */}
         <Typography variant="body2" color="textSecondary" component="p">
-          {article.author}
-        </Typography>
-        <Typography variant="body2" color="textSecondary" component="p">
-          {article.description}
-        </Typography>
-        <hr />
-        <Typography paragraph>
-          {article.content}
+          {article.content ? article.content.split('[')[0] : ''}
+          {/* <Link href={article.url}
+            target="_blank" rel="opener" rel="noreferrer"
+          >
+            <i>open full article</i>
+          </Link> */}
         </Typography>
       </CardContent>
+      <CardActions>
+
+        <Button href={article.url}
+          target="_blank" rel="opener" rel="noreferrer" color="primary">
+          full article
+        </Button>
+      </CardActions>
     </Card>
   );
 }
