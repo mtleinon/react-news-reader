@@ -36,7 +36,7 @@ export default function MainPage() {
 
   const loadSources = useCallback(async () => {
 
-    const query = '/v2/sources?';
+    const query = '/v2/sources&';
     const reply = await fetchJson(query);
 
     const allSourcesIds = [ALL_SOURCE_IDS, ...new Set(reply.sources.map(source => source.id))].sort()
