@@ -16,7 +16,7 @@ router.get('/*', function (req, res, next) {
 
   // console.log('serve: ' + req.url);
   let url;
-  if (!req.url.includes('?')) {
+  if (req.url.includes('?')) {
     url = req.url;
   } else {
     url = req.url + '?';
