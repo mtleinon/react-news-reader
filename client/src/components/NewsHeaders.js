@@ -12,31 +12,40 @@ const useStyles = makeStyles(() => ({
     height: '100%',
     overflow: 'hidden',
     overflowY: 'scroll'
-  }
+  },
+  // root: {
+  //   overflowY: 'scroll'
+  // }
 }));
 
 const NoArticles = () => <div style={{ display: 'flex', justifyContent: 'center', marginTop: '80px' }}><h4>No Articles</h4></div>
 
-export default function NewsHeaders({ articles }) {
+export default function NewsHeaders({ title, articles }) {
   const classes = useStyles();
   return (
-    <Paper elevation={1} className={classes.paper}>
-      <List className={classes.root}>
+    <>
+      <Paper elevation={1} className={classes.paper}>
+        <h3 style={{ textAlign: 'center' }}>{title}</h3>
+        {/* <div style={{ overflowY: 'scroll' }}> */}
+        <List className={classes.root}>
 
-        {articles.length > 0 ? articles.map((article, i) => (
-          <React.Fragment key={article.url}>
-            <ListItem button component="a" href={'#' + article.url}
-              alignItems="flex-start">
-              <ListItemText
-                primary={article.title}
-                secondary={article.source.name}
-              />
-            </ListItem>
-            <Divider />
-          </React.Fragment>
-        )) : <NoArticles />
-        }
-      </List>
-    </Paper >
+          {articles.length > 0 ? articles.map((article, i) => (
+            <React.Fragment key={article.url}>
+              <Divider />
+
+              <ListItem button component="a" href={'#' + article.url}
+                alignItems="flex-start">
+                <ListItemText
+                  primary={article.title}
+                  secondary={article.source.name}
+                />
+              </ListItem>
+            </React.Fragment>
+          )) : <NoArticles />
+          }
+        </List>
+        {/* </div> */}
+      </Paper >
+    </>
   );
 }

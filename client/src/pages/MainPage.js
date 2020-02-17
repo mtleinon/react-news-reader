@@ -137,7 +137,7 @@ export default function MainPage() {
         />
       </NavBar>
       <LeftSidebar>
-        {loadingArticles ? <Spinner /> : <NewsHeaders articles={articles} />}
+        {loadingArticles ? <Spinner /> : <NewsHeaders title={'Search results'} articles={articles} />}
       </LeftSidebar>
       <MainContent>
         {loadingArticles ? <Spinner /> : (
@@ -146,7 +146,7 @@ export default function MainPage() {
         }
       </MainContent>
       <RightSidebar>
-        {loadingDefaultArticles ? <Spinner /> : <NewsHeaders articles={defaultArticles} />}
+        {loadingDefaultArticles ? <Spinner /> : <NewsHeaders title={'BBC News'} articles={defaultArticles} />}
       </RightSidebar>
 
     </Container>
