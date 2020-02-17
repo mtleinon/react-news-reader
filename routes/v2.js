@@ -17,6 +17,8 @@ router.get('/*', function (req, res, next) {
   // console.log('serve: ' + req.url);
 
   const request = 'https://newsapi.org/v2' + req.url + newsApiKey;
+  console.debug('req.url =', req.url);
+  console.debug('request =', request);
   fetch(request)
     .then((res, err) => {
       if (err) {
