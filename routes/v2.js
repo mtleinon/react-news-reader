@@ -8,7 +8,7 @@ if (process.env.NODE_ENV === 'development') {
   newsApiKey = require("../secrets/secrets");
   console.debug('development newsApiKey =', newsApiKey);
 } else {
-  newsApiKey = 'apiKey=' + process.env.NEWS_API_KEY
+  newsApiKey = '?apiKey=' + process.env.NEWS_API_KEY
   console.debug('production newsApiKey =', newsApiKey);
 }
 
