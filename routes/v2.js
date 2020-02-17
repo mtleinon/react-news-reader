@@ -15,8 +15,13 @@ if (process.env.NODE_ENV === 'development') {
 router.get('/*', function (req, res, next) {
 
   // console.log('serve: ' + req.url);
-
-  const request = 'https://newsapi.org/v2' + req.url + newsApiKey;
+  let url;
+  if (!req.url.includes('?')) {
+    url = req.url;
+  } else {
+    url = req.url + '?';
+  }
+  const request = 'https://newsapi.org/v2' + url + newsApiKey;
   console.debug('req.url =', req.url);
   console.debug('request =', request);
   fetch(request)
