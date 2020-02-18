@@ -12,6 +12,14 @@ import Articles from '../components/Articles';
 import { fetchJson } from '../utils/fetchJson';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Backdrop from '@material-ui/core/Backdrop';
+
 const ALL_CATEGORIES = 'All categories';
 const ALL_COUNTRIES = 'All countries';
 const ALL_SOURCE_IDS = 'All sources';
@@ -21,7 +29,14 @@ const DEFAULT_SOURCE = 'bbc-news';
 
 const Spinner = () => <div style={{ display: 'flex', justifyContent: 'center', marginTop: '80px' }}><CircularProgress /></div>
 
+const SpinnerWithBackDrop = ({ open }) => <Backdrop open={open}>
+  <CircularProgress color="inherit" />
+</Backdrop>;
+
+
 export default function MainPage() {
+
+  const [errorMessage, setErrorMessage] = useState('');
   const rightSidebarVisible = useMediaQuery('(min-width:800px)');
 
   const [category, setCategory] = useState(ALL_CATEGORIES);
@@ -38,13 +53,19 @@ export default function MainPage() {
 
   console.debug('rightSidebarVisible =', rightSidebarVisible);
 
+
   const loadSources = useCallback(async () => {
 
     const query = '/v2/sources?';
-    const reply = await fetchJson(query);
-
-    const allSourcesIds = [ALL_SOURCE_IDS, ...new Set(reply.sources.map(source => source.id))].sort()
-    setSourceIds(allSourcesIds);
+    try {
+      const reply = await fetchJson(query);
+      const allSourcesIds = [ALL_SOURCE_IDS, ...new Set(reply.sources.map(source => source.id))].sort()
+      setSourceIds(allSourcesIds);
+    } catch (error) {
+      setSourceIds(['No sources available']);
+      setErrorMessage(error.message);
+    } finally {
+    }
   }, []);
 
   const loadDefaultArticles = useCallback(async () => {
@@ -55,12 +76,15 @@ export default function MainPage() {
     const query = 'v2/top-headlines?' + queryParams + '&';
 
     setLoadingDefaultArticles(true);
-
-    const reply = await fetchJson(query);
-
-    setDefaultArticles(reply.articles);
-    setLoadingDefaultArticles(false);
-
+    try {
+      const reply = await fetchJson(query);
+      setDefaultArticles(reply.articles);
+    } catch (error) {
+      setDefaultArticles([]);
+      setErrorMessage(error.message);
+    } finally {
+      setLoadingDefaultArticles(false);
+    }
   }, [rightSidebarVisible]);
 
   const loadArticles = useCallback(async () => {
@@ -85,12 +109,15 @@ export default function MainPage() {
     const query = 'v2/top-headlines?' + queryParams + '&pageSize=100&';
 
     setLoadingArticles(true);
-    const reply = await fetchJson(query);
-
-    setArticles(reply.articles);
-    setLoadingArticles(false);
-
-    console.debug('sources =', reply);
+    try {
+      const reply = await fetchJson(query);
+      setArticles(reply.articles);
+    } catch (error) {
+      setArticles([]);
+      setErrorMessage(error.message);
+    } finally {
+      setLoadingArticles(false);
+    }
   },
     [category, country, sourceId, searchValue]
   );
@@ -147,7 +174,7 @@ export default function MainPage() {
         {loadingArticles ? <Spinner /> : <NewsHeaders title={'Search results'} articles={articles} />}
       </LeftSidebar>
       <MainContent>
-        {loadingArticles ? <Spinner /> : (
+        {loadingArticles ? <Spinner open={loadingArticles} /> : (
           articles.length > 0 || defaultArticles.length > 0 ?
             (rightSidebarVisible ?
               <Articles articles={[...articles, ...defaultArticles]} /> :
@@ -159,6 +186,25 @@ export default function MainPage() {
       <RightSidebar>
         {loadingDefaultArticles ? <Spinner /> : <NewsHeaders title={'BBC News'} articles={defaultArticles} />}
       </RightSidebar>
+
+      <Dialog
+        open={errorMessage !== ''}
+        onClose={() => setErrorMessage('')}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Error happened"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {errorMessage}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setErrorMessage('')} autoFocus color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
 
     </Container>
   )
