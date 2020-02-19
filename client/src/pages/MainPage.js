@@ -14,11 +14,13 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
+
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Backdrop from '@material-ui/core/Backdrop';
+
+import * as fullScreen from "../utils/fullScreen";
 
 const ALL_CATEGORIES = 'All categories';
 const ALL_COUNTRIES = 'All countries';
@@ -27,16 +29,36 @@ const categories = [ALL_CATEGORIES, 'business', 'entertainment', 'general', 'hea
 const countries = [ALL_COUNTRIES, 'ae', 'ar', 'at', 'au', 'be', 'bg', 'br', 'ca', 'ch', 'cn', 'co', 'cu', 'cz', 'de', 'eg', 'fr', 'gb', 'gr', 'hk', 'hu', 'id', 'ie', 'il', 'in', 'it', 'jp', 'kr', 'lt', 'lv', 'ma', 'mx', 'my', 'ng', 'nl', 'no', 'nz', 'ph', 'pl', 'pt', 'ro', 'rs', 'ru', 'sa', 'se', 'sg', 'si', 'sk', 'th', 'tr', 'tw', 'ua', 'us', 've', 'za'];
 const DEFAULT_SOURCE = 'bbc-news';
 
+const PopUpDialog = ({ open, title, message, onClose }) => {
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+    >
+      <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+          {message}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} autoFocus color="primary">
+          OK
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
+
 const Spinner = () => <div style={{ display: 'flex', justifyContent: 'center', marginTop: '80px' }}><CircularProgress /></div>
-
-const SpinnerWithBackDrop = ({ open }) => <Backdrop open={open}>
-  <CircularProgress color="inherit" />
-</Backdrop>;
-
 
 export default function MainPage() {
 
   const [errorMessage, setErrorMessage] = useState('');
+  const [helpText, setHelpText] = useState('');
   const rightSidebarVisible = useMediaQuery('(min-width:800px)');
 
   const [category, setCategory] = useState(ALL_CATEGORIES);
@@ -51,8 +73,19 @@ export default function MainPage() {
   const [loadingArticles, setLoadingArticles] = useState(false);
   const [loadingDefaultArticles, setLoadingDefaultArticles] = useState(false);
 
-  console.debug('rightSidebarVisible =', rightSidebarVisible);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
+  const toggleFullScreen = () => {
+    if (isFullscreen) {
+      if (fullScreen.close()) {
+        setIsFullscreen(false);
+      }
+    } else {
+      if (fullScreen.open()) {
+        setIsFullscreen(true);
+      }
+    }
+  }
 
   const loadSources = useCallback(async () => {
 
@@ -105,8 +138,17 @@ export default function MainPage() {
       if (queryParams) queryParams += '&';
       queryParams += 'q=' + searchValue;
     }
+    if (!queryParams) {
+      setHelpText('Please give a search string or select a country, a category or a source.');
+      return;
+    } else {
+      setHelpText('');
+    }
 
-    const query = 'v2/top-headlines?' + queryParams + '&pageSize=100&';
+    if (queryParams) queryParams += '&';
+    queryParams += 'pageSize=100&';
+
+    const query = 'v2/top-headlines?' + queryParams;
 
     setLoadingArticles(true);
     try {
@@ -155,7 +197,7 @@ export default function MainPage() {
   };
 
   return (
-    <Container className='container'>
+    <Container className='container' >
       <NavBar >
         <AppBar
           handleSelectCategory={handleSelectCategory}
@@ -168,6 +210,8 @@ export default function MainPage() {
           category={category}
           sourceId={sourceId}
           handleSearchValue={handleSearchValue}
+          toggleFullScreen={toggleFullScreen}
+          isFullscreen={isFullscreen}
         />
       </NavBar>
       <LeftSidebar>
@@ -186,25 +230,10 @@ export default function MainPage() {
       <RightSidebar>
         {loadingDefaultArticles ? <Spinner /> : <NewsHeaders title={'BBC News'} articles={defaultArticles} />}
       </RightSidebar>
-
-      <Dialog
-        open={errorMessage !== ''}
-        onClose={() => setErrorMessage('')}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{"Error happened"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {errorMessage}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setErrorMessage('')} autoFocus color="primary">
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <PopUpDialog open={errorMessage !== ''} title='Error happened' message={errorMessage}
+        onClose={() => setErrorMessage('')} />
+      <PopUpDialog open={helpText !== ''} title='Help Text' message={helpText}
+        onClose={() => setHelpText('')} />
 
     </Container>
   )

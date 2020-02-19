@@ -6,6 +6,9 @@ import InputBase from '@material-ui/core/InputBase';
 import { fade, makeStyles } from '@material-ui/core/styles';
 import SearchIcon from '@material-ui/icons/Search';
 import { getCountryName } from '../utils/countryNames';
+import FullscreenIcon from '@material-ui/icons/Fullscreen';
+import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
+import IconButton from '@material-ui/core/IconButton';
 
 import DropDown from './DropDown';
 
@@ -30,10 +33,10 @@ const useStyles = makeStyles(theme => ({
     },
     marginLeft: 0,
     width: '100%',
-    maxWidth: '200px'
+    maxWidth: '170px'
   },
   searchIcon: {
-    width: theme.spacing(7),
+    width: theme.spacing(5),
     height: '100%',
     position: 'absolute',
     pointerEvents: 'none',
@@ -58,22 +61,27 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     alignItems: 'space-between'
   },
+  fullScreenIcon: {
+    color: 'white',
+    '&:hover': {
+      backgroundColor: fade(theme.palette.common.white, 0.15),
+    },
+    marginLeft: theme.spacing(1)
+  }
 }));
 
 export default function AppBar({ handleSelectCategory, handleSelectCountry, handleSelectSourceId,
-  countries, categories, sourceIds, country, category, sourceId, handleSearchValue }) {
+  countries, categories, sourceIds, country, category, sourceId, handleSearchValue, toggleFullScreen, isFullscreen, maxElem }) {
 
   const classes = useStyles();
 
   const [searchValue, setSearchValue] = useState('');
 
   const searchValueChange = (event) => {
-    console.debug('event.target.value = ', event.target.value);
     setSearchValue(event.target.value);
   }
 
   const keyPressed = (event) => {
-    console.debug('event.key = ', event.key);
     if (event.key === 'Enter') {
       handleSearchValue(searchValue);
     }
@@ -102,6 +110,11 @@ export default function AppBar({ handleSelectCategory, handleSelectCountry, hand
               inputProps={{ 'aria-label': 'search' }}
             />
           </div>
+          {toggleFullScreen !== undefined &&
+            <IconButton size="small" onClick={toggleFullScreen} classes={{ root: classes.fullScreenIcon }}>
+              {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+            </IconButton>
+          }
         </div>
         <div className={classes.selections}>
           <DropDown handleSelect={handleSelectCountry} values={countries}

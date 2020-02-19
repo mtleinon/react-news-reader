@@ -3,6 +3,10 @@
   --navbar-two-rows-height: 87px;
 }
 
+html {
+  background-color: #ddd;
+}
+
 body {
   margin: 0;
   padding: 0;

@@ -13,9 +13,6 @@ const useStyles = makeStyles(() => ({
     overflow: 'hidden',
     overflowY: 'scroll'
   },
-  // root: {
-  //   overflowY: 'scroll'
-  // }
 }));
 
 const NoArticles = () => <div style={{ display: 'flex', justifyContent: 'center', marginTop: '80px' }}><h4>No Articles</h4></div>
@@ -26,7 +23,6 @@ export default function NewsHeaders({ title, articles }) {
     <>
       <Paper elevation={1} className={classes.paper}>
         <h3 style={{ textAlign: 'center' }}>{title}</h3>
-        {/* <div style={{ overflowY: 'scroll' }}> */}
         <List className={classes.root}>
 
           {articles.length > 0 ? articles.map((article, i) => (
@@ -39,7 +35,10 @@ export default function NewsHeaders({ title, articles }) {
                     {article.title.split('-')[0]}
                   </Typography>
                   <Typography variant="body2" component="span" >
-                    {' - ' + article.source.name}
+                    {' - ' + article.source.name + ' - '}
+                  </Typography>
+                  <Typography variant="body2" component="span" >
+                    {' ' + new Date(article.publishedAt).toLocaleTimeString([], { hour: 'numeric', minute: 'numeric' })}
                   </Typography>
                 </div>
               </ListItem>
@@ -47,7 +46,6 @@ export default function NewsHeaders({ title, articles }) {
           )) : <NoArticles />
           }
         </List>
-        {/* </div> */}
       </Paper >
     </>
   );

@@ -29,7 +29,6 @@ export async function fetchJson(query) {
     },
     credentials: "include"
   });
-  console.debug('replyInJson =', replyInJson);
   if (replyInJson.status !== 200) {
     throw new Error('Internal server error');
   }

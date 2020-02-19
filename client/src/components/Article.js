@@ -38,8 +38,6 @@ const useStyles = makeStyles(theme => ({
 export default function Article({ id, article }) {
   const classes = useStyles();
 
-  const preventDefault = event => event.preventDefault();
-
   return (
     <Card id={id} className={classes.card} raised>
       <CardHeader
@@ -58,30 +56,25 @@ export default function Article({ id, article }) {
           <b>{article.author}</b> -
           </Typography>
         }
-        <Typography variant="body2" color="secondary" component="span">
-          <b>
-            {' ' + new Date(article.publishedAt).toLocaleString()}
-          </b>
+        <Typography variant="body2" component="span">
+          {' ' + new Date(article.publishedAt).toLocaleString([], {
+            day: 'numeric', month: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'
+          })
+          }
         </Typography>
-        <div style={{ margin: '8px 24px 16px' }}>
+        <div style={{ margin: '16px 24px 16px' }}>
           <Typography variant="body1" color="textPrimary" component="p">
             {article.description}
           </Typography>
         </div>
-        {/* <hr /> */}
         <Typography variant="body2" color="textSecondary" component="p">
           {article.content ? article.content.split('[')[0] : ''}
-          {/* <Link href={article.url}
-            target="_blank" rel="opener" rel="noreferrer"
-          >
-            <i>open full article</i>
-          </Link> */}
         </Typography>
       </CardContent>
       <CardActions>
 
         <Button href={article.url}
-          target="_blank" rel="opener" rel="noreferrer" color="primary">
+          target="_blank" rel="opener" color="primary">
           full article
         </Button>
       </CardActions>

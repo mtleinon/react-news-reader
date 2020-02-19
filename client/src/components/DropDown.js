@@ -33,7 +33,7 @@ export default function DropDown({ handleSelect, values, preSelected, displayVal
   };
 
   return (
-    <div>
+    <div id='pop'>
       <Button
         aria-controls="simple-menu"
         aria-haspopup="true"
@@ -46,6 +46,7 @@ export default function DropDown({ handleSelect, values, preSelected, displayVal
         id="simple-menu"
         anchorEl={anchorEl}
         keepMounted
+        selected={preSelected}
         open={Boolean(anchorEl)}
         onClose={handleClose}
         style={{ padding: '8px' }}
