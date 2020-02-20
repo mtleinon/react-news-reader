@@ -43,9 +43,10 @@ const ArticleContent = ({ article }) => {
 
   return (
     <CardContent>
-      {article.author && <Typography variant="body2" color="textPrimary" component="span">
-        <b>{article.author}</b> -
-  </Typography>
+      {article.author &&
+        <Typography variant="body2" color="textPrimary" component="span">
+          <b>{article.author}</b> -
+        </Typography>
       }
       <Typography variant="body2" component="span">
         {' ' + new Date(article.publishedAt).toLocaleString([], {

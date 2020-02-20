@@ -11,7 +11,6 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: fade(theme.palette.common.white, 0.15),
     },
   },
-
 }));
 
 export default function DropDown({ handleSelect, values, preSelected, displayValues }) {

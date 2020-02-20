@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './MainPage.css';
-// import Container from '../components/Container';
 import NewsHeaders from '../components/NewsHeaders';
 import AppBar from '../components/AppBar';
 import CircularProgress from '@material-ui/core/CircularProgress';

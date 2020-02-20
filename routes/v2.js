@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 const fetch = require('node-fetch');
-// var newsApiKey = require('../secrets/secrets');
 
 let newsApiKey;
 if (process.env.NODE_ENV === 'development') {
@@ -14,7 +13,7 @@ if (process.env.NODE_ENV === 'development') {
 
 router.get('/*', function (req, res, next) {
 
-  // console.log('serve: ' + req.url);
+  // Add API key and execute the request
   let url;
   if (req.url.includes('?')) {
     url = req.url;
@@ -22,8 +21,6 @@ router.get('/*', function (req, res, next) {
     url = req.url + '?';
   }
   const request = 'https://newsapi.org/v2' + url + newsApiKey;
-  console.debug('req.url =', req.url);
-  console.debug('request =', request);
   fetch(request)
     .then((res, err) => {
       if (err) {
@@ -31,11 +28,9 @@ router.get('/*', function (req, res, next) {
         return res.status(500).send('newsapi call failed');
 
       }
-      // console.debug('reply received =', res);
       return res.json();
     })
     .then(json => {
-      // console.log(json)
       return res.send(json);
     });
 });

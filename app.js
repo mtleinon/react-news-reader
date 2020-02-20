@@ -1,3 +1,10 @@
+/* Simple API for serving React app and executing newsapi call. 
+   newsapi key is added to the end of the request. The key is for 
+   a free account that allows 500 requests a day. There is no 
+   authentication, so anyone using the app can use the app and
+   this API.
+*/
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -7,19 +14,11 @@ var apiRouterV2 = require('./routes/v2');
 
 var app = express();
 
-
-
 app.use(express.static(path.join(__dirname, 'client/build')));
 app.use('/v2', apiRouterV2);
-
-// Handles any requests that don't match the ones above
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname + '/client/build/index.html'));
 });
-
-// app.get('/*', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
-// });
 
 app.use(logger('dev'));
 
