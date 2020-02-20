@@ -1,105 +1,91 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './MainPage.css';
-import Container from '../components/Container';
+// import Container from '../components/Container';
 import NewsHeaders from '../components/NewsHeaders';
-import NavBar from './NavBar';
 import AppBar from '../components/AppBar';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import MainContent from '../components/MainContent';
-import LeftSidebar from '../components/LeftSidebar';
-import RightSidebar from '../components/RightSidebar';
 import Articles from '../components/Articles';
 import { fetchJson } from '../utils/fetchJson';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
+import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-
-import * as fullScreen from "../utils/fullScreen";
+import TocIcon from '@material-ui/icons/Toc';
+import Fab from '@material-ui/core/Fab';
+import PopUpDialog from '../components/PopUpDialog';
 
 const ALL_CATEGORIES = 'All categories';
 const ALL_COUNTRIES = 'All countries';
 const ALL_SOURCE_IDS = 'All sources';
-const categories = [ALL_CATEGORIES, 'business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology'];
-const countries = [ALL_COUNTRIES, 'ae', 'ar', 'at', 'au', 'be', 'bg', 'br', 'ca', 'ch', 'cn', 'co', 'cu', 'cz', 'de', 'eg', 'fr', 'gb', 'gr', 'hk', 'hu', 'id', 'ie', 'il', 'in', 'it', 'jp', 'kr', 'lt', 'lv', 'ma', 'mx', 'my', 'ng', 'nl', 'no', 'nz', 'ph', 'pl', 'pt', 'ro', 'rs', 'ru', 'sa', 'se', 'sg', 'si', 'sk', 'th', 'tr', 'tw', 'ua', 'us', 've', 'za'];
 const DEFAULT_SOURCE = 'bbc-news';
-
-const PopUpDialog = ({ open, title, message, onClose }) => {
-  return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
-    >
-      <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
-      <DialogContent>
-        <DialogContentText id="alert-dialog-description">
-          {message}
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} autoFocus color="primary">
-          OK
-        </Button>
-      </DialogActions>
-    </Dialog>
-  )
-}
-
+const DEFAULT_COUNTRY = 'us';
 
 const Spinner = () => <div style={{ display: 'flex', justifyContent: 'center', marginTop: '80px' }}><CircularProgress /></div>
+
+const LeftSidebar = ({ visible, loading, articles, handleSetCurrentUrl, currentUrl }) =>
+  visible &&
+  <div className='leftSidebar sidebars'>
+    {loading
+      ? <Spinner />
+      : <NewsHeaders title={'Search results'} articles={articles} onClick={handleSetCurrentUrl} url={currentUrl} />
+    }
+  </div>
+
+const MainContent = ({ loading, articles, defaultArticles, rightSidebarVisible }) =>
+  <div className='mainContent'>
+    {loading ? <Spinner /> : (
+      articles.length > 0 || defaultArticles.length > 0 ?
+        (rightSidebarVisible ?
+          <Articles articles={[...articles, ...defaultArticles]} /> :
+          <Articles articles={[...articles]} />)
+        : ''
+    )}
+  </div>
+
+const RightSidebar = ({ visible, loading, articles, handleSetCurrentUrl, currentUrl }) =>
+  visible &&
+  <div className='rightSidebar sidebars'>
+    {loading
+      ? <Spinner />
+      : <NewsHeaders title={'BBC News'} articles={articles} onClick={handleSetCurrentUrl} url={currentUrl} />}
+  </div>
+
+const ArticleHeadersInMobile = ({ visible, articles, toggleShowHeaders, open, handleSetCurrentUrl, currentUrl }) =>
+  !visible && <>
+    <Fab color="primary" aria-label="toc"
+      style={{ position: 'absolute', bottom: '30px', right: '30px' }}
+      onClick={toggleShowHeaders}
+    >
+      <TocIcon />
+    </Fab>
+    <SwipeableDrawer
+      anchor="right"
+      open={open}
+      onClose={toggleShowHeaders}
+      onOpen={toggleShowHeaders}
+    >
+      <NewsHeaders title={'Search results'} articles={articles} onClick={(url) => { toggleShowHeaders(); handleSetCurrentUrl(url); }} url={currentUrl} />
+    </SwipeableDrawer>
+  </>
 
 export default function MainPage() {
 
   const [errorMessage, setErrorMessage] = useState('');
   const [helpText, setHelpText] = useState('');
   const rightSidebarVisible = useMediaQuery('(min-width:800px)');
+  const leftSidebarVisible = useMediaQuery('(min-width:600px)');
+  const [currentUrl, setCurrentUrl] = useState('');
 
-  const [category, setCategory] = useState(ALL_CATEGORIES);
-  const [country, setCountry] = useState('us');
-  const [sourceId, setSourceId] = useState(ALL_SOURCE_IDS);
-  const [searchValue, setSearchValue] = useState('');
-
-  const [sourceIds, setSourceIds] = useState([]);
   const [articles, setArticles] = useState([]);
   const [defaultArticles, setDefaultArticles] = useState([]);
 
   const [loadingArticles, setLoadingArticles] = useState(false);
   const [loadingDefaultArticles, setLoadingDefaultArticles] = useState(false);
 
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showHeaders, setShowHeaders] = useState(false);
 
-  const toggleFullScreen = () => {
-    if (isFullscreen) {
-      if (fullScreen.close()) {
-        setIsFullscreen(false);
-      }
-    } else {
-      if (fullScreen.open()) {
-        setIsFullscreen(true);
-      }
-    }
-  }
-
-  const loadSources = useCallback(async () => {
-
-    const query = '/v2/sources?';
-    try {
-      const reply = await fetchJson(query);
-      const allSourcesIds = [ALL_SOURCE_IDS, ...new Set(reply.sources.map(source => source.id))].sort()
-      setSourceIds(allSourcesIds);
-    } catch (error) {
-      setSourceIds(['No sources available']);
-      setErrorMessage(error.message);
-    } finally {
-    }
-  }, []);
+  const toggleShowHeaders = () => {
+    setShowHeaders(!showHeaders);
+  };
 
   const loadDefaultArticles = useCallback(async () => {
     if (!rightSidebarVisible) {
@@ -120,7 +106,12 @@ export default function MainPage() {
     }
   }, [rightSidebarVisible]);
 
-  const loadArticles = useCallback(async () => {
+  const loadArticles = useCallback(async (
+    country = DEFAULT_COUNTRY,
+    category = ALL_CATEGORIES,
+    sourceId = ALL_SOURCE_IDS,
+    searchValue = ''
+  ) => {
     let queryParams = '';
 
     // Query params can contain either both country and category or only source
@@ -160,13 +151,8 @@ export default function MainPage() {
     } finally {
       setLoadingArticles(false);
     }
-  },
-    [category, country, sourceId, searchValue]
-  );
 
-  useEffect(() => {
-    loadSources();
-  }, [loadSources]);
+  }, []);
 
   useEffect(() => {
     loadDefaultArticles();
@@ -174,67 +160,28 @@ export default function MainPage() {
 
   useEffect(() => {
     loadArticles();
-  }, [loadArticles, country, category, sourceId]);
+  }, [loadArticles]);
 
-  const handleSelectCountry = (newCountry) => {
-    setCountry(newCountry);
-    setSourceId(ALL_SOURCE_IDS);
-  }
-
-  const handleSelectCategory = (newCategory) => {
-    setCategory(newCategory);
-    setSourceId(ALL_SOURCE_IDS);
-  }
-
-  const handleSelectSourceId = (newSourceId) => {
-    setSourceId(newSourceId);
-    setCountry(ALL_COUNTRIES);
-    setCategory(ALL_CATEGORIES);
-  }
-
-  const handleSearchValue = (newSearchValue) => {
-    setSearchValue(newSearchValue);
-  };
+  const handleSetCurrentUrl = (url) => setCurrentUrl(url);
 
   return (
-    <Container className='container' >
-      <NavBar >
-        <AppBar
-          handleSelectCategory={handleSelectCategory}
-          handleSelectCountry={handleSelectCountry}
-          handleSelectSourceId={handleSelectSourceId}
-          countries={countries}
-          categories={categories}
-          sourceIds={sourceIds}
-          country={country}
-          category={category}
-          sourceId={sourceId}
-          handleSearchValue={handleSearchValue}
-          toggleFullScreen={toggleFullScreen}
-          isFullscreen={isFullscreen}
-        />
-      </NavBar>
-      <LeftSidebar>
-        {loadingArticles ? <Spinner /> : <NewsHeaders title={'Search results'} articles={articles} />}
-      </LeftSidebar>
-      <MainContent>
-        {loadingArticles ? <Spinner open={loadingArticles} /> : (
-          articles.length > 0 || defaultArticles.length > 0 ?
-            (rightSidebarVisible ?
-              <Articles articles={[...articles, ...defaultArticles]} /> :
-              <Articles articles={[...articles]} />)
-            : ''
-        )
-        }
-      </MainContent>
-      <RightSidebar>
-        {loadingDefaultArticles ? <Spinner /> : <NewsHeaders title={'BBC News'} articles={defaultArticles} />}
-      </RightSidebar>
+    <div className='container' >
+      <div className='navbar' >
+        <AppBar loadArticles={loadArticles} />
+      </div>
+      <LeftSidebar visible={leftSidebarVisible} loading={loadingArticles}
+        articles={articles} handleSetCurrentUrl={handleSetCurrentUrl} currentUrl={currentUrl}
+      />
+      <MainContent loading={loadingArticles} articles={articles}
+        defaultArticles={defaultArticles} rightSidebarVisible={rightSidebarVisible} />
+      <RightSidebar visible={rightSidebarVisible} loading={loadingDefaultArticles}
+        articles={defaultArticles} handleSetCurrentUrl={handleSetCurrentUrl} currentUrl={currentUrl} />
+      <ArticleHeadersInMobile visible={leftSidebarVisible} articles={articles} toggleShowHeaders={toggleShowHeaders}
+        open={showHeaders} handleSetCurrentUrl={handleSetCurrentUrl} currentUrl={currentUrl} />
       <PopUpDialog open={errorMessage !== ''} title='Error happened' message={errorMessage}
         onClose={() => setErrorMessage('')} />
-      <PopUpDialog open={helpText !== ''} title='Help Text' message={helpText}
+      <PopUpDialog open={helpText !== ''} title='Info' message={helpText}
         onClose={() => setHelpText('')} />
-
-    </Container>
+    </div>
   )
 }

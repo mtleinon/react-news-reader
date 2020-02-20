@@ -33,7 +33,37 @@ const useStyles = makeStyles(theme => ({
   avatar: {
     backgroundColor: red[500],
   },
+  description: {
+    margin: '16px 24px 16px'
+  }
 }));
+
+const ArticleContent = ({ article }) => {
+  const classes = useStyles();
+
+  return (
+    <CardContent>
+      {article.author && <Typography variant="body2" color="textPrimary" component="span">
+        <b>{article.author}</b> -
+  </Typography>
+      }
+      <Typography variant="body2" component="span">
+        {' ' + new Date(article.publishedAt).toLocaleString([], {
+          day: 'numeric', month: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'
+        })
+        }
+      </Typography>
+      <div className={classes.description}>
+        <Typography variant="body1" color="textPrimary" component="p">
+          {article.description}
+        </Typography>
+      </div>
+      <Typography variant="body2" color="textSecondary" component="p">
+        {article.content ? article.content.split('[')[0] : ''}
+      </Typography>
+    </CardContent>
+  );
+}
 
 export default function Article({ id, article }) {
   const classes = useStyles();
@@ -51,28 +81,8 @@ export default function Article({ id, article }) {
           title={article.title}
         />
       }
-      <CardContent>
-        {article.author && <Typography variant="body2" color="textPrimary" component="span">
-          <b>{article.author}</b> -
-          </Typography>
-        }
-        <Typography variant="body2" component="span">
-          {' ' + new Date(article.publishedAt).toLocaleString([], {
-            day: 'numeric', month: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'
-          })
-          }
-        </Typography>
-        <div style={{ margin: '16px 24px 16px' }}>
-          <Typography variant="body1" color="textPrimary" component="p">
-            {article.description}
-          </Typography>
-        </div>
-        <Typography variant="body2" color="textSecondary" component="p">
-          {article.content ? article.content.split('[')[0] : ''}
-        </Typography>
-      </CardContent>
+      <ArticleContent article={article} />
       <CardActions>
-
         <Button href={article.url}
           target="_blank" rel="opener" color="primary">
           full article

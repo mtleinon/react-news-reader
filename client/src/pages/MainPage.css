@@ -102,17 +102,6 @@
     display: none;
   }
 }
-/* 
-.navbar-link {
-  text-decoration: none;
-  padding: 5px 10px;
-}
-.navbar-link:hover {
-  background-color: #eee;
-}
-.navbar-link-active {
-  background-color: #ddd;
-} */
 
 .footer {
   background-color: orange;
