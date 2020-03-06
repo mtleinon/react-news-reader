@@ -2,3 +2,5 @@
 
 Simple React news reader app for reading news available from newsapi.org. 
 Please try the app from link: https://react-news-reader-mika.herokuapp.com/
+
+![newsreader](https://github.com/mtleinon/training/blob/master/images/newsreader.jpg)
