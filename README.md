@@ -4,7 +4,7 @@ Simple News reader app for reading news available from newsapi.org API. App was 
 
 ## Try the app
 
-Please try the app from link: https://react-news-reader-mika.herokuapp.com/.
+Please try the app with the following link: https://react-news-reader-mika.herokuapp.com/.
 
 ## Apps user interface
 
