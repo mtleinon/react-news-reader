@@ -12,3 +12,4 @@ Please try the app from link: https://react-news-reader-mika.herokuapp.com/.
 
 ### Video of apps usage
 
+https://www.loom.com/share/d27423e0005b4ce8a12cc15bb6e5be4b
