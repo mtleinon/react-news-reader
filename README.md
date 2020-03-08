@@ -8,7 +8,7 @@ Please try the app from link: https://react-news-reader-mika.herokuapp.com/.
 
 ## Apps user interface
 
-Below is app's user interface in wide computer screen:
+Below is app's user interface in a wide computer screen:
 
 <img src="https://github.com/mtleinon/training/blob/master/images/newsreader.jpg" width="600px">
 
